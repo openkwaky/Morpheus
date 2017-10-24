@@ -1,7 +1,6 @@
 package at.rags.morpheus;
 
-import android.util.ArrayMap;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -12,13 +11,18 @@ import java.util.HashMap;
  * public class Article extends Resource { ... }
  * }</pre>
  *
- * @see at.rags.morpheus.Annotations.SerializeName
+ * @see com.google.gson.annotations.SerializedName
  * @see at.rags.morpheus.Annotations.Relationship
  */
 public class Resource {
   private String Id;
   private Links links;
   private HashMap<String, Object> meta;
+
+  private ArrayList<String> nullableRelationships = new ArrayList<>();
+
+  public Resource() {
+  }
 
   public HashMap<String, Object> getMeta() {
     return meta;
@@ -43,14 +47,27 @@ public class Resource {
   public void setId(String id) {
     Id = id;
   }
+
+  public ArrayList<String> getNullableRelationships() {
+    return nullableRelationships;
+  }
+
+  public void resetNullableRelationships() {
+    nullableRelationships.clear();
+  }
+
+  /**
+   * Add here your relationship name, if you want to null it while serializing.
+   * This can be used to remove relationships from your object.
+   *
+   * @param relationshipName Name of your relationship.
+   */
+  public void addRelationshipToNull(String relationshipName) {
+    if (relationshipName == null) {
+      return;
+    }
+
+    nullableRelationships.add(relationshipName);
+  }
 }
 
-class Links {
-  public String selfLink;
-  public String related;
-  public String first;
-  public String last;
-  public String prev;
-  public String next;
-  public String about;
-}

@@ -1,8 +1,14 @@
 package at.rags.morpheus;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Morpheus is a library to map JSON with the json:api specification format.
@@ -26,7 +32,7 @@ public class Morpheus {
   }
 
   public Morpheus(AttributeMapper attributeMapper) {
-    mapper = new Mapper(new Deserializer(), attributeMapper);
+    mapper = new Mapper(new Deserializer(), new Serializer(), attributeMapper);
     Factory.setMapper(mapper);
   }
 
@@ -107,5 +113,51 @@ public class Morpheus {
     }
 
     return jsonApiObject;
+  }
+
+  /**
+   * Get the serialized json from a JsonApiObject.
+   * Will parse resource(s) and relationships. If addIncluded is set to true, it will also
+   * add the relationships as included.
+   *
+   * @param jsonApiObject JsonApiObject to serialize.
+   * @param addIncluded Add includes for relationships.
+   * @return Json as String.
+   */
+  public String createJson(JsonApiObject jsonApiObject, Boolean addIncluded) {
+    HashMap<String, Object> jsonMap = new HashMap<>();
+
+    ArrayList<HashMap<String, Object>> included = new ArrayList();
+
+    if (jsonApiObject.getResource() != null) {
+      HashMap<String, Object> data = mapper.createData(jsonApiObject.getResource(), true);
+      if (data != null) {
+        jsonMap.put("data", data);
+      }
+
+      if (addIncluded) {
+        included.addAll(mapper.createIncluded(jsonApiObject.getResource()));
+      }
+    }
+
+    if (jsonApiObject.getResources() != null) {
+      ArrayList<HashMap<String, Object>> data = mapper.createData(jsonApiObject.getResources(), true);
+      if (data != null) {
+        jsonMap.put("data", data);
+      }
+
+      if (addIncluded) {
+        for (Resource resource : jsonApiObject.getResources()) {
+          included.addAll(mapper.createIncluded(resource));
+        }
+      }
+    }
+
+    if (addIncluded) {
+      jsonMap.put("included", included);
+    }
+
+    Gson gson = new GsonBuilder().serializeNulls().create();
+    return gson.toJson(jsonMap);
   }
 }

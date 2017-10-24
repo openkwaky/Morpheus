@@ -1,14 +1,15 @@
 package at.rags.morpheus.Resources;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 import at.rags.morpheus.Annotations.Relationship;
 import at.rags.morpheus.Resource;
-import at.rags.morpheus.Annotations.SerializeName;
 
 public class Article extends Resource {
 
-  @SerializeName("title")
+  @SerializedName("title")
   private String title;
 
   @Relationship("author")
@@ -33,5 +34,21 @@ public class Article extends Resource {
 
   public List<String> getTags() {
     return tags;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public void setAuthor(Author author) {
+    this.author = author;
+  }
+
+  public void setComments(List<Comment> comments) {
+    this.comments = comments;
+  }
+
+  public void setTags(List<String> tags) {
+    this.tags = tags;
   }
 }
